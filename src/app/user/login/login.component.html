@@ -1,0 +1,18 @@
+<form (ngSubmit)="login(loginForm)" #loginForm="ngForm" autocomplete="off">
+  <div fxLayoutGap="10px">
+    <mat-form-field appearance="outline">
+      <mat-label>User Name:</mat-label>
+      <input
+        matInput
+        name="userName"
+        placeholder="User Name"
+        [ngModel]="userName"
+        required
+      />
+    </mat-form-field>
+  </div>
+
+  <div>
+    <button mat-raised-button color="primary" type="submit">Log In</button>
+  </div>
+</form>

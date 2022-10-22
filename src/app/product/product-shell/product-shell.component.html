@@ -1,0 +1,22 @@
+<div fxLayout="row" fxLayoutGap="15px">
+  <div>
+    <app-product-list
+      [products]="products$ | async"
+      [showProductCode]="showProductCode$ | async"
+      [selectedProduct]="selectedProduct$ | async"
+      [errorMessage]="errorMessage$ | async"
+      (displayCodeChanged)="onDisplayCodeChanged()"
+      (initializeNewProduct)="initializeProduct()"
+      (productWasSelected)="onProductSelected($event)"
+    ></app-product-list>
+  </div>
+  <div>
+    <app-product-edit
+      [selectedProduct]="selectedProduct$ | async"
+      (create)="productCreated($event)"
+      (update)="productUpdated($event)"
+      (delete)="productDeleted($event)"
+      (clearCurrent)="clearCurrent()"
+    ></app-product-edit>
+  </div>
+</div>

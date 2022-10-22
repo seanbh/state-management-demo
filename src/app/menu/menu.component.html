@@ -1,0 +1,40 @@
+<mat-toolbar>
+  <button
+    mat-icon-button
+    class="example-icon"
+    aria-label="Example icon-button with menu icon"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span style="margin: 0 50px 0 10px">State Demo</span>
+
+  <a mat-button [routerLink]="'/home'">Home</a>
+  <a
+    mat-button
+    [routerLink]="'/products'"
+    matBadge="{{ ((products$ | async) ?? []).length }}"
+    >Products</a
+  >
+
+  <span class="example-spacer"></span>
+
+  <ng-container
+    *ngIf="{
+      isLoggedIn: isLoggedIn$ | async,
+      userName: userName$ | async
+    } as userData"
+  >
+    <span *ngIf="userData.isLoggedIn">Welcome {{ userData.userName }}</span>
+    <a mat-button *ngIf="!userData.isLoggedIn" [routerLink]="'/login'"
+      >Log In</a
+    >
+    <a
+      mat-button
+      *ngIf="userData.isLoggedIn"
+      (click)="logOut()"
+      style="cursor: pointer"
+      >Log Out</a
+    >
+  </ng-container>
+</mat-toolbar>
