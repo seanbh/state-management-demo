@@ -1,7 +1,14 @@
-import { createSelector } from '@ngrx/store';
-import { userFeature } from './user.state';
+import { Selector } from '@ngxs/store';
+import { UserState, UserStateModel } from './user.state';
 
-export const isLoggedIn = createSelector(
-  userFeature.selectCurrentUser,
-  (currentUser) => !!currentUser
-);
+export class UserSelectors {
+  @Selector([UserState])
+  static currentUser(state: UserStateModel) {
+    return state.currentUser;
+  }
+
+  @Selector([UserState])
+  static isLoggedIn(state: UserStateModel) {
+    return !!state.currentUser;
+  }
+}

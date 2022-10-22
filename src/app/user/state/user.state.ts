@@ -1,31 +1,52 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
+import { Injectable, NgZone } from '@angular/core';
+import { Router } from '@angular/router';
+import { Action, State, StateContext } from '@ngxs/store';
+import { tap } from 'rxjs';
+import { AuthService } from '../auth.service';
 import { User } from '../user';
-import { UserActions } from './actions';
+import { UserActions } from './user.actions';
 
-// State for this feature (User)
-export interface UserState {
+export interface UserStateModel {
   currentUser: User | null;
 }
 
-const initialState: UserState = {
-  currentUser: null,
-};
-
-export const userFeature = createFeature({
+@State<UserStateModel>({
   name: 'user',
-  reducer: createReducer(
-    initialState,
-    on(UserActions.loginSuccess, (state, action) => ({
-      ...state,
-      currentUser: action.user,
-    })),
-    on(UserActions.loginFailure, (state, action) => ({
+  defaults: {
+    currentUser: null,
+  },
+})
+@Injectable()
+export class UserState {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private ngZone: NgZone
+  ) {}
+
+  @Action(UserActions.Login)
+  login(ctx: StateContext<UserStateModel>, action: { userName: string }) {
+    this.authService
+      .login(action.userName)
+      .pipe(
+        tap((user) => {
+          ctx.setState((state) => ({
+            ...state,
+            currentUser: user,
+          }));
+          this.ngZone.run(() => this.router.navigate(['/products']));
+        })
+        // todo: catch error
+      )
+      .subscribe(); // in real app this would be an http call which doesn't require unsub
+  }
+
+  @Action(UserActions.Logout)
+  logout(ctx: StateContext<UserStateModel>) {
+    ctx.setState((state) => ({
       ...state,
       currentUser: null,
-    })),
-    on(UserActions.logOutSuccess, (state, action) => ({
-      ...state,
-      currentUser: null,
-    }))
-  ),
-});
+    }));
+    this.router.navigate(['/home']);
+  }
+}

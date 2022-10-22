@@ -1,11 +1,25 @@
-import { createSelector } from '@ngrx/store';
-import { productFeature } from './product.reducer';
+import { Selector } from '@ngxs/store';
+import { ProductState, ProductStateModel } from './product.state';
 
-export const getCurrentProduct = createSelector(
-  productFeature.selectCurrentProductId,
-  productFeature.selectProducts,
-  (currentProductId, products) => {
-    if (currentProductId === 0) {
+export class ProductSelectors {
+  @Selector([ProductState])
+  static showProductCode(state: ProductStateModel) {
+    return state.showProductCode;
+  }
+
+  @Selector([ProductState])
+  static products(state: ProductStateModel) {
+    return state?.products;
+  }
+
+  @Selector([ProductState])
+  static error(state: ProductStateModel) {
+    return state.error;
+  }
+
+  @Selector([ProductState])
+  static currentProduct(state: ProductStateModel) {
+    if (state.currentProductId === 0) {
       return {
         id: 0,
         productName: 'New Product',
@@ -14,9 +28,9 @@ export const getCurrentProduct = createSelector(
         description: 'desc',
       };
     } else {
-      return currentProductId
-        ? products.find((p) => p.id === currentProductId)
+      return state.currentProductId && state.products.length
+        ? state.products.find((p) => p.id === state.currentProductId)
         : null;
     }
   }
-);
+}

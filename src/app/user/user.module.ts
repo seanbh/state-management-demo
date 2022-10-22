@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from './login/login.component';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
-import { StoreModule } from '@ngrx/store';
-import { userFeature } from './state/user.state';
-import { EffectsModule } from '@ngrx/effects';
-import { UserEffects } from './state/user.effects';
+import { NgxsModule } from '@ngxs/store';
+import { UserState } from './state/user.state';
 
 const routes = [{ path: 'login', component: LoginComponent }];
 
@@ -16,8 +14,7 @@ const routes = [{ path: 'login', component: LoginComponent }];
     CommonModule,
     SharedModule,
     RouterModule.forChild(routes),
-    StoreModule.forFeature(userFeature),
-    EffectsModule.forFeature([UserEffects]),
+    NgxsModule.forFeature([UserState]),
   ],
 })
 export class UserModule {}

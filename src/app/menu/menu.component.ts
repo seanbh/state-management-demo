@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { map } from 'rxjs';
-import { productFeature, State } from '../product/state/product.reducer';
-import { UserActions } from '../user/state/actions';
-import { isLoggedIn } from '../user/state/user.selectors';
-import { userFeature } from '../user/state/user.state';
+import { Router } from '@angular/router';
+import { Select, Store } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { Product } from '../product/product';
+import { ProductSelectors } from '../product/state/product.selectors';
+import { AuthService } from '../user/auth.service';
+import { UserActions } from '../user/state/user.actions';
+import { UserSelectors } from '../user/state/user.selectors';
+import { UserStateModel } from '../user/state/user.state';
+import { User } from '../user/user';
 
 @Component({
   selector: 'app-menu',
@@ -14,19 +18,22 @@ import { userFeature } from '../user/state/user.state';
 export class MenuComponent implements OnInit {
   pageTitle = 'Acme Product Management';
 
-  products$ = this.store.select(productFeature.selectProducts);
+  @Select(ProductSelectors.products)
+  products$!: Observable<Product[]>;
 
-  isLoggedIn$ = this.store.select(isLoggedIn);
+  @Select(UserSelectors.isLoggedIn)
+  isLoggedIn$!: Observable<boolean>;
 
-  userName$ = this.store
-    .select(userFeature.selectCurrentUser)
-    .pipe(map((currentUser) => currentUser?.userName ?? ''));
+  @Select(
+    (state: { user: UserStateModel }) => state.user.currentUser?.userName || ''
+  )
+  userName$!: Observable<string>;
 
-  constructor(private store: Store<State>) {}
+  constructor(private store: Store) {}
 
   ngOnInit() {}
 
   logOut(): void {
-    this.store.dispatch(UserActions.logout());
+    this.store.dispatch(new UserActions.Logout());
   }
 }

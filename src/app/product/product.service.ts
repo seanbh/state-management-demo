@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { firstValueFrom, Observable, of, throwError } from 'rxjs';
+import { firstValueFrom, Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 
 import { Product } from './product';
@@ -10,16 +10,13 @@ import { Product } from './product';
   providedIn: 'root',
 })
 export class ProductService {
-  public products: Product[] = [];
-  public selectedProduct: Product | null = null;
-  public displayCode = false;
-
   private productsUrl = 'api/products';
 
   constructor(private http: HttpClient) {}
 
   getProducts(): Observable<Product[]> {
     //return throwError(() => new Error('Could not load products'));
+
     return this.http.get<Product[]>(this.productsUrl).pipe(
       tap((data) => console.log(JSON.stringify(data))),
       catchError(this.handleError)

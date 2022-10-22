@@ -14,11 +14,14 @@ export class AuthService {
     // Code here would log into a back end service
     // and return user information
     // This is just hard-coded here.
-    var currentUser = {
+    return of({
       id: 2,
       userName,
       isAdmin: false,
-    };
-    return of(currentUser);
+    });
   }
+
+  // logout(): void {
+  //   this.currentUser = null;
+  // }
 }

@@ -1,66 +1,73 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from '../product';
-import { ProductService } from '../product.service';
-import { State, productFeature } from '../state/product.reducer';
-
-import { Store } from '@ngrx/store';
-import { startWith, tap } from 'rxjs';
-import { ProductPageActions } from '../state/actions';
-import { getCurrentProduct } from '../state/product.selectors';
-
+import { Store } from '@ngxs/store';
+import { Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { ProductActions } from '../state/product.actions';
+import { ProductSelectors } from '../state/product.selectors';
 @Component({
   selector: 'app-product-shell',
   templateUrl: './product-shell.component.html',
   styleUrls: ['./product-shell.component.scss'],
 })
 export class ProductShellComponent implements OnInit {
-  showProductCode$ = this.store.select(productFeature.selectShowProductCode);
-  products$ = this.store.select(productFeature.selectProducts);
-  errorMessage$ = this.store.select(productFeature.selectError);
-  selectedProduct$ = this.store.select(getCurrentProduct);
+  @Select(ProductSelectors.showProductCode)
+  showProductCode$!: Observable<boolean | null>;
 
-  constructor(
-    public productService: ProductService,
-    private store: Store<State>
-  ) {}
+  // Reads the name of the state from the state class (returns ProductState)
+  // @Select(ProductState)
+  // productState$!: Observable<ProductStateModel>;
+  // in template: ((productState$ | async) ?? {}).products
+
+  // Uses the memoized selector to only return products
+  @Select(ProductSelectors.products)
+  products$!: Observable<Product[]>;
+
+  // Function (returns entire state object, so must drill down to ProductState)
+  // @Select((state: { product: ProductStateModel }) => state.product.products)
+  // products$!: Observable<Product[]>;
+
+  // Reads the name of the state from the parameter (must be named  product$, matches name=product); (returns ProductState)
+  //@Select() productState$!: Observable<ProductStateModel>;
+  // in template: ((productState$ | async) ?? {}).products
+
+  @Select(ProductSelectors.error)
+  errorMessage$!: Observable<string>;
+
+  @Select(ProductSelectors.currentProduct)
+  selectedProduct$!: Observable<Product | null>;
+
+  constructor(private store: Store) {}
 
   async ngOnInit() {
-    this.store.dispatch(ProductPageActions.loadProducts());
+    this.store.dispatch(new ProductActions.Load());
   }
 
   onProductSelected(selectedProduct: Product) {
-    this.store.dispatch(
-      ProductPageActions.setCurrentProduct({
-        currentProductId: selectedProduct.id,
-      })
-    );
+    this.store.dispatch(new ProductActions.SetCurrent(selectedProduct.id));
   }
 
   clearCurrent() {
-    this.store.dispatch(ProductPageActions.clearCurrentProduct());
+    this.store.dispatch(new ProductActions.ClearCurrent());
   }
 
   onDisplayCodeChanged() {
-    this.store.dispatch(ProductPageActions.toggleProductCode());
+    this.store.dispatch(new ProductActions.ToggleProductCode());
   }
 
-  async productCreated(product: Product) {
-    this.store.dispatch(ProductPageActions.createProduct({ product }));
+  productCreated(product: Product) {
+    this.store.dispatch(new ProductActions.Create(product));
   }
 
-  async productUpdated(product: Product) {
-    this.store.dispatch(ProductPageActions.updateProduct({ product }));
+  productUpdated(product: Product) {
+    this.store.dispatch(new ProductActions.Update(product));
   }
 
-  async productDeleted(product: Product) {
-    if (product.id) {
-      this.store.dispatch(
-        ProductPageActions.deleteProduct({ productId: product.id })
-      );
-    }
+  productDeleted(product: Product) {
+    this.store.dispatch(new ProductActions.Delete(product.id));
   }
 
   initializeProduct() {
-    this.store.dispatch(ProductPageActions.initializeCurrentProduct());
+    this.store.dispatch(new ProductActions.InitializeCurrent());
   }
 }
