@@ -1,20 +1,21 @@
-<div class="card" *ngIf="products?.length; else loading">
+Length: {{ productService.products.length }}
+<div class="card" *ngIf="productService.products?.length; else loading">
   <div class="card-header">
     {{ pageTitle }}
   </div>
 
-  <div class="card-body" *ngIf="products">
+  <div class="card-body" *ngIf="productService.products">
     <div class="list-group">
       <button
         class="list-group-item list-group-item-action rounded-0"
-        *ngFor="let product of products"
+        *ngFor="let product of productService.products"
         [ngClass]="{
-          active: product?.id === selectedProduct?.id
+          active: product?.id === productService.selectedProduct?.id
         }"
         (click)="productSelected(product)"
       >
         {{ product.productName }}
-        <ng-container *ngIf="showProductCode">
+        <ng-container *ngIf="productService.displayCode">
           ({{ product.productCode }})
         </ng-container>
       </button>
@@ -29,7 +30,7 @@
             class="form-check-input"
             type="checkbox"
             (change)="checkChanged()"
-            [checked]="showProductCode"
+            [checked]="productService.displayCode"
           />
           Display Product Code
         </label>
@@ -45,8 +46,5 @@
 </div>
 
 <ng-template #loading>
-  <mat-progress-spinner
-    mode="indeterminate"
-    *ngIf="!errorMessage"
-  ></mat-progress-spinner>
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
 </ng-template>

@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Product } from '../product';
+import { ProductService } from '../product.service';
 
 @Component({
   selector: 'app-product-list',
@@ -16,18 +17,17 @@ import { Product } from '../product';
 export class ProductListComponent {
   pageTitle = 'Products';
 
-  @Input() showProductCode: boolean | null = false;
-  @Input() errorMessage?: string | null;
-  @Input() products?: Product[] | null;
-  @Input() selectedProduct?: Product | null;
+  @Input() errorMessage?: string;
+  @Input() selectedProduct?: Product;
   @Output() displayCodeChanged = new EventEmitter<void>();
   @Output() initializeNewProduct = new EventEmitter<void>();
   @Output() productWasSelected = new EventEmitter<Product>();
 
-  constructor() {}
+  constructor(public productService: ProductService) {}
 
   checkChanged(): void {
-    this.displayCodeChanged.emit();
+    //this.displayCodeChanged.emit();
+    this.productService.displayCode = !this.productService.displayCode;
   }
 
   newProduct(): void {
@@ -35,6 +35,7 @@ export class ProductListComponent {
   }
 
   productSelected(product: Product): void {
-    this.productWasSelected.emit(product);
+    this.productService.selectedProduct = product;
+    //this.productWasSelected.emit(product);
   }
 }

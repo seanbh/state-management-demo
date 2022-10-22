@@ -11,36 +11,50 @@ export class ProductShellComponent implements OnInit {
   constructor(public productService: ProductService) {}
 
   async ngOnInit() {
-    this.productService.loadProducts();
+    this.productService.products = await this.productService.getProducts();
   }
 
-  onDisplayCodeChanged() {
-    this.productService.toggleDisplayCode();
-  }
-
-  onProductSelected(selectedProduct: Product) {
-    this.productService.setSelectedProduct(selectedProduct);
-  }
-
-  clearCurrent() {
-    this.productService.clearCurrent();
-  }
-
-  productCreated(product: Product) {
-    this.productService.createProduct(product);
+  async productCreated(product: Product) {
+    const newProduct = await this.productService.createProduct(product);
+    this.productService.products = [
+      ...this.productService.products,
+      newProduct,
+    ];
+    this.productService.selectedProduct = newProduct;
+    console.log(this.productService.products);
   }
 
   async productUpdated(product: Product) {
-    this.productService.updateProduct(product);
+    const updatedProduct = await this.productService.updateProduct(product);
+    if (this.productService.products) {
+      let idx = this.productService.products.findIndex(
+        (p) => p.id === updatedProduct.id
+      );
+      this.productService.products[idx] = {
+        ...this.productService.products[idx],
+        ...updatedProduct,
+      };
+      this.productService.selectedProduct = updatedProduct;
+      console.log(this.productService.products);
+    }
   }
 
   async productDeleted(product: Product) {
-    if (product?.id) {
-      this.productService.deleteProduct(product.id);
+    if (product.id) {
+      await this.productService.deleteProduct(product.id);
+      this.productService.products = this.productService.products.filter(
+        (p) => p.id !== product.id
+      );
     }
   }
 
   initializeProduct() {
-    this.productService.initializeNewProduct();
+    this.productService.selectedProduct = {
+      id: 0,
+      productName: 'New Product',
+      productCode: 'AAA-123',
+      starRating: 3.4,
+      description: 'desc',
+    } as Product;
   }
 }

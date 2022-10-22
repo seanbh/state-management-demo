@@ -1,22 +1,16 @@
 <div fxLayout="row" fxLayoutGap="15px">
   <div>
     <app-product-list
-      [products]="productService.products$ | async"
-      [showProductCode]="productService.showProductCode$ | async"
-      [selectedProduct]="productService.selectedProduct$ | async"
-      [errorMessage]="productService.errorMessage$ | async"
-      (displayCodeChanged)="onDisplayCodeChanged()"
+      *ngIf="productService.products.length"
       (initializeNewProduct)="initializeProduct()"
-      (productWasSelected)="onProductSelected($event)"
     ></app-product-list>
   </div>
   <div>
     <app-product-edit
-      [selectedProduct]="productService.selectedProduct$ | async"
+      [selectedProduct]="productService.selectedProduct"
       (create)="productCreated($event)"
       (update)="productUpdated($event)"
       (delete)="productDeleted($event)"
-      (clearCurrent)="clearCurrent()"
     ></app-product-edit>
   </div>
 </div>

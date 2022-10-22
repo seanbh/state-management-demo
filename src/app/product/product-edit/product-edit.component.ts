@@ -10,6 +10,7 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Product } from '../product';
+import { ProductService } from '../product.service';
 
 @Component({
   selector: 'app-product-edit',
@@ -26,7 +27,7 @@ export class ProductEditComponent implements OnInit, OnChanges {
 
   productForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, public productService: ProductService) {}
 
   ngOnInit(): void {
     // Define the form group
@@ -80,7 +81,10 @@ export class ProductEditComponent implements OnInit, OnChanges {
   }
 
   cancelEdit(): void {
-    this.clearCurrent.emit();
+    // Redisplay the currently selected product
+    // replacing any edits made
+    ///this.displayProduct(this.selectedProduct);
+    this.productService.selectedProduct = null;
   }
 
   deleteProduct(): void {

@@ -7,7 +7,7 @@ import { SharedModule } from './shared/shared.module';
 import { MenuComponent } from './menu/menu.component';
 import { UserModule } from './user/user.module';
 import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { InMemoryDataService } from 'src/app/core/in-memory-data.service';
+import { InMemoryDataService } from 'src/core/in-memory-data.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
