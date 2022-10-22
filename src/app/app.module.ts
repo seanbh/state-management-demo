@@ -11,8 +11,6 @@ import { InMemoryDataService } from 'src/app/core/in-memory-data.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { NgxsModule } from '@ngxs/store';
-import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, MenuComponent],
@@ -26,10 +24,6 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
     HttpClientInMemoryWebApiModule.forRoot(InMemoryDataService, {
       delay: 500,
     }),
-    NgxsModule.forRoot([], {
-      selectorOptions: { suppressErrors: false, injectContainerState: false },
-    }),
-    NgxsReduxDevtoolsPluginModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { firstValueFrom, Observable, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  Observable,
+  of,
+  throwError,
+} from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 
 import { Product } from './product';
@@ -10,12 +17,74 @@ import { Product } from './product';
   providedIn: 'root',
 })
 export class ProductService {
+  private _showProductCode = new BehaviorSubject<boolean>(false);
+  public readonly showProductCode$ = this._showProductCode.asObservable();
+
+  private _products = new BehaviorSubject<Product[]>([]);
+  public readonly products$ = this._products.asObservable();
+
+  private _selectedProductId = new BehaviorSubject<number | null>(null);
+  public readonly selectedProductId$ = this._selectedProductId.asObservable();
+  public selectedProduct$ = combineLatest([
+    this.products$,
+    this.selectedProductId$,
+  ]).pipe(
+    map(([products, selectedProductId]) => {
+      if (selectedProductId === 0) {
+        return {
+          id: 0,
+          productName: 'New Product',
+          productCode: 'AAA-123',
+          starRating: 3.4,
+          description: 'desc',
+        };
+      } else {
+        return products.find((p) => p.id === selectedProductId);
+      }
+    })
+  );
+
+  private _errorMessage = new BehaviorSubject<string>('');
+  public readonly errorMessage$ = this._errorMessage.asObservable();
+
   private productsUrl = 'api/products';
 
   constructor(private http: HttpClient) {}
 
-  getProducts(): Observable<Product[]> {
-    //return throwError(() => new Error('Could not load products'));
+  toggleDisplayCode() {
+    this._showProductCode.next(!this._showProductCode.value);
+  }
+
+  loadProducts() {
+    this.getProducts()
+      .pipe(
+        tap((products) => {
+          this._errorMessage.next('');
+          this._products.next(products);
+        }),
+        catchError((error) => {
+          this._products.next([]);
+          this._errorMessage.next(error);
+          return of(error);
+        })
+      )
+      .subscribe();
+  }
+
+  setSelectedProduct(selectedProduct: Product) {
+    this._selectedProductId.next(selectedProduct?.id);
+  }
+
+  initializeNewProduct() {
+    this._selectedProductId.next(0);
+  }
+
+  clearCurrent() {
+    this._selectedProductId.next(null);
+  }
+
+  private getProducts(): Observable<Product[]> {
+    // return throwError(() => new Error('Could not load products'));
 
     return this.http.get<Product[]>(this.productsUrl).pipe(
       tap((data) => console.log(JSON.stringify(data))),
@@ -23,36 +92,51 @@ export class ProductService {
     );
   }
 
-  createProduct(product: Product): Observable<Product> {
+  createProduct(product: Product): void {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     // Product Id must be null for the Web API to assign an Id
     const newProduct = { ...product, id: null };
-    return this.http
-      .post<Product>(this.productsUrl, newProduct, { headers })
+    this.http
+      .post<Product>(this.productsUrl, product, { headers })
       .pipe(
-        tap((data) => console.log('createProduct: ' + JSON.stringify(data))),
+        tap((newProduct) => {
+          this._products.next([...this._products.value, newProduct]);
+        }),
         catchError(this.handleError)
-      );
+      )
+      .subscribe();
   }
 
-  deleteProduct(id: number): Observable<{}> {
+  deleteProduct(id: number): void {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const url = `${this.productsUrl}/${id}`;
-    return this.http.delete<Product>(url, { headers }).pipe(
-      tap((data) => console.log('deleteProduct: ' + id)),
-      catchError(this.handleError)
-    );
+
+    this.http
+      .delete<Product>(url, { headers })
+      .pipe(
+        tap(() =>
+          this._products.next(this._products.value.filter((p) => p.id !== id))
+        ),
+        catchError(this.handleError)
+      )
+      .subscribe();
   }
 
-  updateProduct(product: Product): Observable<Product> {
+  updateProduct(product: Product): void {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const url = `${this.productsUrl}/${product.id}`;
-    return this.http.put<Product>(url, product, { headers }).pipe(
-      tap(() => console.log('updateProduct: ' + product.id)),
-      // Return the product on an update
-      map(() => product),
-      catchError(this.handleError)
-    );
+    console.log(product);
+    this.http
+      .put<Product>(url, product, { headers })
+      .pipe(
+        tap(() => {
+          this._products.next(
+            this._products.value.map((p) => (p.id === product.id ? product : p))
+          );
+        }),
+        catchError(this.handleError)
+      )
+      .subscribe();
   }
 
   private handleError(err: any) {
@@ -65,7 +149,7 @@ export class ProductService {
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong,
-      errorMessage = `Backend returned code ${err.status}: ${err.body.error}`;
+      errorMessage = `Backend returned code ${err.status}: ${err.body?.error}`;
     }
     console.error(err);
     return throwError(() => new Error(errorMessage));

@@ -5,8 +5,6 @@ import { RouterModule } from '@angular/router';
 import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { SharedModule } from '../shared/shared.module';
-import { NgxsModule } from '@ngxs/store';
-import { ProductState } from './state/product.state';
 
 const routes = [{ path: '', component: ProductShellComponent }];
 @NgModule({
@@ -15,11 +13,6 @@ const routes = [{ path: '', component: ProductShellComponent }];
     ProductEditComponent,
     ProductListComponent,
   ],
-  imports: [
-    CommonModule,
-    SharedModule,
-    RouterModule.forChild(routes),
-    NgxsModule.forFeature([ProductState]),
-  ],
+  imports: [CommonModule, SharedModule, RouterModule.forChild(routes)],
 })
 export class ProductModule {}

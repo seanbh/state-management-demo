@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Store } from '@ngxs/store';
 import { AuthService } from '../auth.service';
-import { UserActions } from '../state/user.actions';
 
 @Component({
   selector: 'app-login',
@@ -13,13 +11,19 @@ import { UserActions } from '../state/user.actions';
 export class LoginComponent implements OnInit {
   userName = 'Sean';
 
-  constructor(private store: Store) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {}
 
   login(loginForm: NgForm) {
     if (loginForm?.valid) {
-      this.store.dispatch(new UserActions.Login(loginForm.form.value.userName));
+      this.authService.login(loginForm.form.value.userName);
+
+      if (this.authService.redirectUrl) {
+        this.router.navigateByUrl(this.authService.redirectUrl);
+      } else {
+        this.router.navigate(['/products']);
+      }
     }
   }
 }

@@ -1,10 +1,10 @@
 <div fxLayout="row" fxLayoutGap="15px">
   <div>
     <app-product-list
-      [products]="products$ | async"
-      [showProductCode]="showProductCode$ | async"
-      [selectedProduct]="selectedProduct$ | async"
-      [errorMessage]="errorMessage$ | async"
+      [products]="productService.products$ | async"
+      [showProductCode]="productService.showProductCode$ | async"
+      [selectedProduct]="productService.selectedProduct$ | async"
+      [errorMessage]="productService.errorMessage$ | async"
       (displayCodeChanged)="onDisplayCodeChanged()"
       (initializeNewProduct)="initializeProduct()"
       (productWasSelected)="onProductSelected($event)"
@@ -12,7 +12,7 @@
   </div>
   <div>
     <app-product-edit
-      [selectedProduct]="selectedProduct$ | async"
+      [selectedProduct]="productService.selectedProduct$ | async"
       (create)="productCreated($event)"
       (update)="productUpdated($event)"
       (delete)="productDeleted($event)"

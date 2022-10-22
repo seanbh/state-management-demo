@@ -13,28 +13,15 @@
   <a
     mat-button
     [routerLink]="'/products'"
-    matBadge="{{ ((products$ | async) ?? []).length }}"
+    matBadge="{{ ((productService.products$ | async) ?? []).length }}"
     >Products</a
   >
 
   <span class="example-spacer"></span>
 
-  <ng-container
-    *ngIf="{
-      isLoggedIn: isLoggedIn$ | async,
-      userName: userName$ | async
-    } as userData"
+  <span *ngIf="isLoggedIn">Welcome {{ userName }}</span>
+  <a mat-button *ngIf="!isLoggedIn" [routerLink]="'/login'">Log In</a>
+  <a mat-button *ngIf="isLoggedIn" (click)="logOut()" style="cursor: pointer"
+    >Log Out</a
   >
-    <span *ngIf="userData.isLoggedIn">Welcome {{ userData.userName }}</span>
-    <a mat-button *ngIf="!userData.isLoggedIn" [routerLink]="'/login'"
-      >Log In</a
-    >
-    <a
-      mat-button
-      *ngIf="userData.isLoggedIn"
-      (click)="logOut()"
-      style="cursor: pointer"
-      >Log Out</a
-    >
-  </ng-container>
 </mat-toolbar>
